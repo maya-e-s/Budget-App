@@ -43,4 +43,41 @@ class Category:
     def get_balance(self):
         return self.funds
 
-#def create_spend_chart(categories):
+# input: list of Category objects 
+# output: string that is a bar chart showing the percentage spent (only withdraws) in each category
+def create_spend_chart(categories):
+    # calculate spending per category and total spending
+    sum = 0.0
+    cat_title = list()
+    spending = list()
+    for category in categories:
+        # sum withdrawals
+        withdraws = 0.0
+        for item in category.ledger:
+            if item.get('amount') < 0: 
+                withdraws += item.get('amount')
+                sum += item.get('amount')
+        # add to lists
+        cat_title.append(category.cat)
+        spending.append(withdraws)
+    # calculate percent per category
+    for i in range(len(spending)):
+        spending[i] = int(spending[i]/sum*10)*10 # calculate percent and round down to the nearest 10   
+    # format bar chart as a string
+    chart = 'Percentage spent by category\n'
+    for val in range(100,-1,-10):
+        line = str(val).rjust(3,' ') + '| '
+        for s in spending:
+            if s>=val: line+='o  '
+            else: line+='   '
+        chart += line + '\n'
+    chart += '    -' + '---'*len(spending)
+    # add chart labels 
+    for i in range(len(max(cat_title, key=len))):
+        line = '\n     '
+        for c in cat_title:
+            if len(c) > i: line += c[i] + '  '
+            else: line += '   '
+        chart += line
+    print(chart) 
+    return chart
